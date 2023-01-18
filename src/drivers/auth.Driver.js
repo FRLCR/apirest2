@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken'
 import config from '../config.js'
 import Rol from '../models/Rol.js'
 
+const erroCredenciales = "Usuario y/o contraseña incorrectos!"
+
 export const register = async (req,res) => {
 
     const {email, password, roles} = req.body
@@ -19,7 +21,7 @@ export const register = async (req,res) => {
     }
 
     const usuarioGuardado = await newUser.save();
-    const token = jwt.sign({id : usuarioGuardado._id}, config.SECRET_TOKEN, {expiresIn: 86400})
+    const token = jwt.sign({id : usuarioGuardado._id}, config.SECRET_TOKEN, {expiresIn: config.TIEMPO_EXPIRA})
 
     console.log(usuarioGuardado)
     res.status(200).json({token})
@@ -35,6 +37,6 @@ export const login = async (req,res) => {
     res.json({token: token,
         message: "Ha ingresado correctamente!"})    
   } else {
-    return res.status(400).json({message: "Usuario y/o contraseña incorrectos!"})
+    return res.status(400).json(erroCredenciales)
   }
 }

@@ -3,21 +3,22 @@ import config from '../config.js'
 import Rol from '../models/Rol.js'
 import Usuario from '../models/Usuario.js'
 
+const noAccess = "Acceso Restringido"
 export const verifyToken = async (req, res, next) =>{
     try{
     const token = req.headers["x-access-token"]
 
-    if (!token) return res.status(403).json({message: "No token provided"})
+    if (!token) return res.status(403).json(noAccess)
 
     const accessToken = jwt.verify(token, config.SECRET_TOKEN)
     req.userId = accessToken.id
 
     const user = await Usuario.findById(req.userId, {password: 0})
-    if (!user){return res.status(404).json({message:"No"})}
+    if (!user){return res.status(404).json(noAccess)}
     next()
     
     } catch(error){
-        res.status(401).json({message: "Acceso restringido"})
+        res.status(401).json(noAccess)
     }    
 }
 
@@ -30,8 +31,6 @@ export const onlyMods = async (req, res, next) => {
         console.log(userRol.nombre)
      next()
     } else {
-     return res.status(403).json({
-         message: "No autorizado!"
-     });
+     return res.status(403).json(noAccess);
     }
 }
