@@ -21,7 +21,7 @@ export const newProduct = async (req,res) => {
 export const deleteProduct = async (req,res) => {
     try{
     await Producto.findByIdAndDelete(req.params.productId)
-    res.status(204).json(operacionOk)    
+    res.status(200).json(operacionOk)    
     } catch(error){
       res.status(404).json(operacionFail)
     } 
