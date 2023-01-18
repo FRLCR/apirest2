@@ -4,6 +4,7 @@ import config from '../config.js'
 import Rol from '../models/Rol.js'
 
 const erroCredenciales = "Usuario y/o contraseña incorrectos!"
+const loginSuccess = "Ingresado con exito"
 
 export const register = async (req,res) => {
 
@@ -34,9 +35,12 @@ export const login = async (req,res) => {
 
   if(success){
     const token = jwt.sign({id: buscarUsuario._id}, config.SECRET_TOKEN, {expiresIn: config.TIEMPO_EXPIRA})
-    res.json({token: token,
-        message: "Ha ingresado correctamente!"}).redirect("/index")
+    res.status(200).json({token: token,
+        message: "Ha ingresado correctamente!"})
+    
+/*         res.status(200).json({token: token}).redirect('/index.html' )*/
   } else {
-    return res.status(400).json(erroCredenciales).redirect("/")
+    //return res.status(400).json(erroCredenciales)
+    return res.redirect("/login.html")
   }
 }

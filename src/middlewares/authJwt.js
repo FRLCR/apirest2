@@ -18,7 +18,8 @@ export const verifyToken = async (req, res, next) =>{
     next()
     
     } catch(error){
-        res.status(401).json(noAccess)
+        res.redirect("/login.html")
+    //    res.status(401).json(noAccess)
     }    
 }
 
