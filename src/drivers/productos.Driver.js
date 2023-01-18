@@ -5,7 +5,7 @@ const operacionFail = "ERROR"
 
 export const getProductList = async (req,res) => {
     const productList = await Producto.find()
-    res.json(productList)   
+    res.status(200).json(productList)   
 }
 
 export const newProduct = async (req,res) => {
