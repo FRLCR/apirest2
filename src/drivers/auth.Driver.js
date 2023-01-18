@@ -37,10 +37,7 @@ export const login = async (req,res) => {
     const token = jwt.sign({id: buscarUsuario._id}, config.SECRET_TOKEN, {expiresIn: config.TIEMPO_EXPIRA})
     res.status(200).json({token: token,
         message: "Ha ingresado correctamente!"})
-    
-/*         res.status(200).json({token: token}).redirect('/index.html' )*/
   } else {
-    //return res.status(400).json(erroCredenciales)
-    return res.redirect("/login.html")
+    return res.status(400).json(erroCredenciales)
   }
 }
