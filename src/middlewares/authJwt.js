@@ -29,7 +29,6 @@ export const onlyMods = async (req, res, next) => {
 
     if (success){
         console.log(userRol.nombre)
-        res.status(200)
      next()
     } else {
      return res.status(403).json(noAccess);
