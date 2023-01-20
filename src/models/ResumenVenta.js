@@ -1,4 +1,4 @@
-import {Schema, model} from 'mongoose'
+/* import {Schema, model} from 'mongoose'
 
 const resumenVentaSchema = new Schema({
     comprador: String,
@@ -10,9 +10,23 @@ const resumenVentaSchema = new Schema({
     versionKey: false
 })
 
-function addProductList(nombreProducto, cantidadComprada){
+resumenVentaSchema.function.addProductList = (nombreProducto, cantidadComprada) =>{
     this.productosComprados.push(nombreProducto)
     this.cantidadesCompradas.push(cantidadComprada)
 }
+export default model('Resumen de Venta', resumenVentaSchema) */
 
-export default model('Resumen de Venta', resumenVentaSchema)
+
+export function ResumenVenta(){
+    let comprador;
+    let productosComprados = []
+    let cantidadesCompradas = []
+    let totalRecaudado
+}
+
+export function addProduct(producto, cantidad){
+        this.productosComprados.push(producto)
+        this.cantidadesCompradas.push(cantidad)
+    }
+
+export default class{}

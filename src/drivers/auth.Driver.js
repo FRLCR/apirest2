@@ -7,7 +7,7 @@ const erroCredenciales = "Usuario y/o contraseña incorrectos!"
 const loginSuccess = "Ingresado con exito"
 
 export const register = async (req,res) => {
-
+try{
     const {email, password, roles} = req.body
     const newUser = new Usuario({
         email,
@@ -26,6 +26,9 @@ export const register = async (req,res) => {
 
     console.log(usuarioGuardado)
     res.status(200).json({token})
+  } catch(error){
+    res.status(404).json({message: "ERROR"})
+  }
 }
 
 export const login = async (req,res) => {

@@ -1,60 +1,51 @@
 import Venta from '../models/Venta.js'
 import Producto from '../models/Producto.js'
 import Usuario from '../models/Usuario.js'
-import ResumenDeVenta from '../models/Usuario.js'
+import * as ResumenDeVenta from '../models/ResumenVenta.js'
 
 const operacionOk= "La operacion se realizó con éxito"
 const operacionFail = "ERROR"
+const cargadoPorSistema = "63caca232905f5ad960aecc4" // ID CARGA POR SISTEMA
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find()
     res.status(200).json(sellList)   
 }
-/* export const newVenta = async (req,res) => {
-    try{
-    const {totalRecaudado, comprador, listadoProductos} = req.body
-    await (new Venta({totalRecaudado, comprador, listadoProductos})).save()
-    res.json(operacionOk)
-    } catch(error){
-       res.status(404).json(operacionFail)
-    }
-} */
 
 export const newVenta = async (req,res) => {
 
-    const {totalRecaudado, comprador, listadoProductos, cantidadesCompradas} = req.body
+    let {totalRecaudado, comprador, listadoProductos, cantidadesCompradas} = req.body
+    const camposVacios = !totalRecaudado && !listadoProductos && !cantidadesCompradas
+    console.log(camposVacios)
+    if (camposVacios){
+       return res.json(operacionFail)
+    } else if (!camposVacios && !comprador){
+        comprador = cargadoPorSistema // ID CARGA POR SISTEMA
+    }
     await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
     res.json(operacionOk)
 }
 
 export const resumenDeVenta = async (req,res) => {
-    const venta = await Venta.findById(req.params.productId)
-    console.log(venta.totalRecaudado)
-    console.log(venta.cantidadesCompradas)
-    console.log(venta.comprador)
-   // await (new Venta({totalRecaudado, comprador, listadoProductos})).save()
- //  console.log(emitirResumen(venta))
-   res.json(emitirResumen(venta))
-   
-}
+    //CARGAMOS LOS OBJETOS DE LAS VENTAS
+    const venta = await Venta.findById(req.params.productId) // Cargamos venta
+    const comprador = await Usuario.findById(venta.comprador) // Cargamos al comprador
 
-async function emitirResumen(venta){
+    // Creamos el resumen de venta
+    let resumen = new ResumenDeVenta.ResumenVenta()
+        resumen.comprador = comprador.email // Seteamos el nombre del comprador
+        resumen.productosComprados = [] // Inicializamos los arrayList del objeto para utilizar tranqulo el metodo Push
+        resumen.cantidadesCompradas = [] // Inicializamos los arrayList del objeto para utilizar tranqulo el metodo Push
+        resumen.totalRecaudado = venta.totalRecaudado // Seteamos el total recaudado de la venta en el resumen de venta
 
-    let usuarioComprador = await Usuario.findById(venta.comprador)
-    let resumenDeVenta = new ResumenDeVenta()  
-    resumenDeVenta.comprador= usuarioComprador.email
-      for (let i = 0; i < venta.listadoProductos.length; i++) {
-        let productoComprado = await Producto.findById(venta.listadoProductos[i])
-        ResumenDeVenta.addProductList(productoComprado.nombre, venta.cantidadesCompradas[i])
+    // Iniciamos la carga de productos y sus respectivas cantidades
+    for (let i = 0; i < venta.listadoProductos.length; i++) {
+        let productoComprado = await Producto.findById(venta.listadoProductos[i]) // Cargamos el producto
+        resumen.productosComprados.push(productoComprado.nombre) // Insertamos en el objeto el nombre del producto
+        resumen.cantidadesCompradas.push(venta.cantidadesCompradas[i]) // Insertamos en el objeto el INDEX de la cantidad comprada 
     }
-    /*     comprador: String,
-    productosComprados: [{type: String}]  ,
-    cantidadesCompradas: [{type: Number}],
-    totalRecaudado: Number, */
-    console.log("RESUMEN DE VENTA")
-    console.log(resumenDeVenta.comprador)
-    console.log(resumenDeVenta.productosComprados)
-    console.log(resumenDeVenta.cantidadesCompradas)
+    console.log("RESUMEN DE VENTA: ")
+   res.json(resumen)   
 }
 
 export const deleteVenta = async (req,res) => {
