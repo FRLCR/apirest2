@@ -23,10 +23,4 @@ export function ResumenVenta(){
     let cantidadesCompradas = []
     let totalRecaudado
 }
-
-export function addProduct(producto, cantidad){
-        this.productosComprados.push(producto)
-        this.cantidadesCompradas.push(cantidad)
-    }
-
 export default class{}
