@@ -1,7 +1,4 @@
 import Venta from '../models/Venta.js'
-import Producto from '../models/Producto.js'
-import Usuario from '../models/Usuario.js'
-import * as ResumenDeVenta from '../models/ResumenVenta.js'
 
 const operacionOk= "La operacion se realizó con éxito"
 const operacionFail = "ERROR"
