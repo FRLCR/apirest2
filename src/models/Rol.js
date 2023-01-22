@@ -7,5 +7,4 @@ const rolSchema = new Schema({
 }, {
     versionKey: false
 })
-
 export default model('Rol', rolSchema)
