@@ -4,12 +4,12 @@ const ventaSchema = new Schema({
     totalRecaudado: Number,
 
     comprador: [{ // USUARIOS
-        ref: "Comprador",
+        ref: "Usuario",
         type: Schema.Types.ObjectId
        }],
 
      listadoProductos: [{ // Listado productos
-        ref: "Productos",
+        ref: "Producto",
         type: Schema.Types.ObjectId,
        }], 
 

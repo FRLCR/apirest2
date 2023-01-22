@@ -8,8 +8,9 @@ const operacionFail = "ERROR"
 const cargadoPorSistema = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 
 export const getSellList = async (req,res) => {
-    const sellList = await Venta.find()
-    res.status(200).json(sellList)   
+    const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
+                                         .populate({path:'listadoProductos', select:'nombre'} )
+    res.status(200).json(sellList)
 }
 
 export const newVenta = async (req,res) => {
@@ -24,28 +25,6 @@ export const newVenta = async (req,res) => {
     }
     await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
     res.json(operacionOk)
-}
-
-export const resumenDeVenta = async (req,res) => {
-    //CARGAMOS LOS OBJETOS DE LAS VENTAS
-    const venta = await Venta.findById(req.params.productId) // Cargamos venta
-    const comprador = await Usuario.findById(venta.comprador) // Cargamos al comprador
-
-    // Creamos el resumen de venta
-    let resumen = new ResumenDeVenta.ResumenVenta()
-        resumen.comprador = comprador.email // Seteamos el nombre del comprador
-        resumen.productosComprados = [] // Inicializamos los arrayList del objeto para utilizar tranqulo el metodo Push
-        resumen.cantidadesCompradas = [] // Inicializamos los arrayList del objeto para utilizar tranqulo el metodo Push
-        resumen.totalRecaudado = venta.totalRecaudado // Seteamos el total recaudado de la venta en el resumen de venta
-
-    // Iniciamos la carga de productos y sus respectivas cantidades
-    for (let i = 0; i < venta.listadoProductos.length; i++) {
-        let productoComprado = await Producto.findById(venta.listadoProductos[i]) // Cargamos el producto
-        resumen.productosComprados.push(productoComprado.nombre) // Insertamos en el objeto el nombre del producto
-        resumen.cantidadesCompradas.push(venta.cantidadesCompradas[i]) // Insertamos en el objeto el INDEX de la cantidad comprada 
-    }
-    console.log("RESUMEN DE VENTA: ")
-   res.json(resumen)   
 }
 
 export const deleteVenta = async (req,res) => {

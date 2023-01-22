@@ -10,6 +10,6 @@ router.post('/', venta.newVenta)
 router.delete('/:productId', venta.deleteVenta)
 router.put('/:productId', venta.updateVenta)
 router.get('/:productId', venta.getVenta)
-router.get('/resumen/:productId', venta.resumenDeVenta)
+//router.get('/resumen/:productId', venta.resumenDeVenta)
 
 export default router
