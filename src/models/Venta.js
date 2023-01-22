@@ -13,7 +13,9 @@ const ventaSchema = new Schema({
         type: Schema.Types.ObjectId,
        }], 
 
-     cantidadesCompradas: [{type: Number}]  
+     cantidadesCompradas: [{type: Number}],
+     
+     motivoEdicion: String
 }, {
     timestamps: true,
     versionKey: false
