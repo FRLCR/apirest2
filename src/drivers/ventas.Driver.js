@@ -5,7 +5,7 @@ import * as ResumenDeVenta from '../models/ResumenVenta.js'
 
 const operacionOk= "La operacion se realizó con éxito"
 const operacionFail = "ERROR"
-const cargadoPorSistema = "63caca232905f5ad960aecc4" // ID CARGA POR SISTEMA
+const cargadoPorSistema = "63cac8dec53bd27aa8428f49" // ID CARGA POR SISTEMA
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find()
