@@ -12,7 +12,7 @@ export const getSellList = async (req,res) => {
 }
 
 export const newVenta = async (req,res) => {
-
+    let nombresProductos = []
     let {totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales} = req.body
     const camposVacios = !totalRecaudado && !listadoProductos && !cantidadesCompradas && !subTotales
     console.log(camposVacios)
@@ -21,14 +21,15 @@ export const newVenta = async (req,res) => {
     } else if (!camposVacios && !comprador){
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
-    for (let i = 0; listadoProductos.length; i++){
-        let producto = await Producto.findById(listadoProductos[i])
-        let nombresProducto = []
-        nombresProducto.push(producto.nombre)
+    console.log(listadoProductos[0])
+     for (let i = 0; i < listadoProductos.length; i++){        
+      let producto = await Producto.findById(listadoProductos[i])
+      nombresProductos.push(producto.nombre)
     }
-    await (new Venta({totalRecaudado, comprador, nombresProducto, cantidadesCompradas, subTotales})).save()
+    console.log(nombresProductos)
+     await (new Venta({totalRecaudado, comprador, nombresProductos, cantidadesCompradas, subTotales})).save()
 
-    await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO
+  //  await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO */
     res.json(operacionOk)
 }
 
@@ -49,7 +50,6 @@ export const deleteVenta = async (req,res) => {
         const idVenta = req.params.productId
         let venta = await Venta.findById(idVenta)
                 
-        console.log(venta.subTotales.length)
         for (let i = 0; i < venta.subTotales.length; i++){
             console.log("HOLA")
             let restaSubtotales = venta.subTotales[i] - (venta.subTotales[i]*2)
