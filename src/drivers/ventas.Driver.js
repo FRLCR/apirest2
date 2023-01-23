@@ -7,7 +7,7 @@ const cargadoPorSistema = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
-                                         .populate({path:'listadoProductos', select:'nombre'} )
+
     res.status(200).json(sellList)
 }
 
