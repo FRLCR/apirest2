@@ -22,7 +22,7 @@ export const newVenta = async (req,res) => {
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
     for (let i = 0; listadoProductos.length; i++){
-        let producto = Producto.findById(listadoProductos[i])
+        let producto = await Producto.findById(listadoProductos[i])
         let nombresProducto = []
         nombresProducto.push(producto.nombre)
     }
