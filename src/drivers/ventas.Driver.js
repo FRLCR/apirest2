@@ -13,8 +13,8 @@ export const getSellList = async (req,res) => {
 
 export const newVenta = async (req,res) => {
 
-    let {totalRecaudado, comprador, listadoProductos, cantidadesCompradas} = req.body
-    const camposVacios = !totalRecaudado && !listadoProductos && !cantidadesCompradas
+    let {totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales} = req.body
+    const camposVacios = !totalRecaudado && !listadoProductos && !cantidadesCompradas && !subTotales
     console.log(camposVacios)
     if (camposVacios){
        return res.json(operacionFail)
@@ -23,15 +23,17 @@ export const newVenta = async (req,res) => {
     }
     await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
 
-    await actualizarStock(listadoProductos, cantidadesCompradas) // NUEVO
+    await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO
     res.json(operacionOk)
 }
 
 // NUEVOP
-async function actualizarStock(listadoProductos, cantidadesCompradas){
+async function actualizarStock(listadoProductos, cantidadesCompradas, subTotales){
     for ( let i = 0; i < listadoProductos.length; i++) {
         let producto = await Producto.findById(listadoProductos[i])
+        producto.cantidad -= cantidadesCompradas[i]
         producto.historicoVentas += cantidadesCompradas[i]
+        producto.historicoRecaudado += subTotales[i]
         await producto.save()
   }
 }
