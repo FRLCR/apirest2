@@ -21,7 +21,12 @@ export const newVenta = async (req,res) => {
     } else if (!camposVacios && !comprador){
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
-    await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales})).save()
+    for (let i = 0; listadoProductos.length; i++){
+        let producto = Producto.findById(listadoProductos[i])
+        let nombresProducto = []
+        nombresProducto.push(producto.nombre)
+    }
+    await (new Venta({totalRecaudado, comprador, nombresProducto, cantidadesCompradas, subTotales})).save()
 
     await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO
     res.json(operacionOk)

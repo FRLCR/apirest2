@@ -8,11 +8,7 @@ const ventaSchema = new Schema({
         type: Schema.Types.ObjectId
        }],
 
-     listadoProductos: [{ // Listado productos
-        ref: "Producto",
-        type: Schema.Types.ObjectId,
-       }], 
-
+     nombresProducto: [{type: String}], 
      cantidadesCompradas: [{type: Number}],
 
      // Para resumenes y estadisticas
