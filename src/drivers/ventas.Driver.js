@@ -1,3 +1,4 @@
+import Producto from '../models/Producto.js'
 import Venta from '../models/Venta.js'
 
 const operacionOk= "La operacion se realizó con éxito"
@@ -21,7 +22,23 @@ export const newVenta = async (req,res) => {
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
     await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
+
+    actualizarStock() // NUEVO
     res.json(operacionOk)
+}
+
+
+// NUEVOP
+async function actualizarStock(listadoProductos, cantidadesCompradas){
+/*     historicoRecaudado: Number,
+    historicoVentas: Number */
+    const productList = await Producto.find({}).populate({path:'listadoProductos', select:'nombre', select: 'historicoVentas' } )
+    
+    for (let i = 0; i < productList.length; i++){
+        let producto = productList[i]._id
+        let historicoVentas = productList[i].historicoVentas += cantidadesCompradas[i]
+        let actualizacionProducto = await Producto.findByIdAndUpdate((producto, historicoVentas,{new: true}))
+    }
 }
 
 export const deleteVenta = async (req,res) => {
