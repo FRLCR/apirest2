@@ -21,7 +21,7 @@ export const newVenta = async (req,res) => {
     } else if (!camposVacios && !comprador){
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
-    await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
+    await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales})).save()
 
     await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO
     res.json(operacionOk)
@@ -40,6 +40,17 @@ async function actualizarStock(listadoProductos, cantidadesCompradas, subTotales
 
 export const deleteVenta = async (req,res) => {
     try{
+        // 63cec7d08c257101f1060f39
+        const idVenta = req.params.productId
+        let venta = await Venta.findById(idVenta)
+                
+        console.log(venta.subTotales.length)
+        for (let i = 0; i < venta.subTotales.length; i++){
+            console.log("HOLA")
+            let restaSubtotales = venta.subTotales[i] - (venta.subTotales[i]*2)
+            let restaCantidadesCompradas = venta.cantidadesCompradas[i] - (venta.cantidadesCompradas[i]*2)
+            await actualizarStock(listadoProductos, restaSubtotales, restaCantidadesCompradas)
+        }
         // PROBAR PRIMERO CON ACTUALIZARSTOCK LUEGO CON LO DE ABAJO.
         // POPULATE FINDBYID, AGARRO DATOS Y ACTUALIZOm DESPUES BORRAMOS LA VENTA.
     await Venta.findByIdAndDelete(req.params.productId)

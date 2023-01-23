@@ -14,7 +14,9 @@ const ventaSchema = new Schema({
        }], 
 
      cantidadesCompradas: [{type: Number}],
-     
+
+     // Para resumenes y estadisticas
+     subTotales: Number,     
      motivoEdicion: String
 }, {
     timestamps: true,
