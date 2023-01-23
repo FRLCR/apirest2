@@ -23,26 +23,23 @@ export const newVenta = async (req,res) => {
     }
     await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas})).save()
 
-    actualizarStock() // NUEVO
+    await actualizarStock(listadoProductos, cantidadesCompradas) // NUEVO
     res.json(operacionOk)
 }
 
-
 // NUEVOP
 async function actualizarStock(listadoProductos, cantidadesCompradas){
-/*     historicoRecaudado: Number,
-    historicoVentas: Number */
-    const productList = await Producto.find({}).populate({path:'listadoProductos', select:'nombre', select: 'historicoVentas' } )
-    
-    for (let i = 0; i < productList.length; i++){
-        let producto = productList[i]._id
-        let historicoVentas = productList[i].historicoVentas += cantidadesCompradas[i]
-        let actualizacionProducto = await Producto.findByIdAndUpdate((producto, historicoVentas,{new: true}))
-    }
+    for ( let i = 0; i < listadoProductos.length; i++) {
+        let producto = await Producto.findById(listadoProductos[i])
+        producto.historicoVentas += cantidadesCompradas[i]
+        await producto.save()
+  }
 }
 
 export const deleteVenta = async (req,res) => {
     try{
+        // PROBAR PRIMERO CON ACTUALIZARSTOCK LUEGO CON LO DE ABAJO.
+        // POPULATE FINDBYID, AGARRO DATOS Y ACTUALIZOm DESPUES BORRAMOS LA VENTA.
     await Venta.findByIdAndDelete(req.params.productId)
     res.status(200).json(operacionOk)    
     } catch(error){
