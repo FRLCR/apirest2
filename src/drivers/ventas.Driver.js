@@ -22,7 +22,7 @@ export const newVenta = async (req,res) => {
         comprador = cargadoPorSistema // ID CARGA POR SISTEMA
     }
      await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales})).save()
-    await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) // NUEVO */
+    await actualizarStock(listadoProductos, cantidadesCompradas, subTotales) 
     res.json(operacionOk)
 }
 

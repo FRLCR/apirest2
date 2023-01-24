@@ -12,5 +12,7 @@ router.post('/', producto.newProduct)
 router.delete('/:productId', producto.deleteProduct)
 router.put('/:productId', producto.updateProduct)
 router.get('/:productId', producto.getProduct)
+router.get('/stats/masvendidos', producto.productosMasVendidos)
+router.get('/stats/masrecaudados', producto.productosMasGanancia)
 
 export default router
