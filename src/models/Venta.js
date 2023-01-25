@@ -8,7 +8,12 @@ const ventaSchema = new Schema({
         type: Schema.Types.ObjectId
        }],
 
-     listadoProductos: [{
+    vendedor: [{ // VENDEDOR DEL TIPO USUARIO
+        ref: "Usuario",
+        type: Schema.Types.ObjectId
+       }],    
+    
+    listadoProductos: [{
         ref: "Producto",
         type: Schema.Types.ObjectId 
      }],

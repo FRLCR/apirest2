@@ -1,6 +1,6 @@
 import {ROLES} from '../models/Rol.js'
 import Usuario from '../models/Usuario.js';
-
+import * as config from '../config.js'
 
 export const checkRoles = (req, res, next) =>{
     if (req.body.roles){

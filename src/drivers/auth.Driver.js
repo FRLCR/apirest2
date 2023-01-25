@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken'
 import config from '../config.js'
 import Rol from '../models/Rol.js'
 
-const erroCredenciales = "Usuario y/o contraseña incorrectos!"
-const loginSuccess = "Ingresado con exito"
+const ERROR_CREDENCIALES = "Usuario y/o contraseña incorrectos!"
 
 export const register = async (req,res) => {
 try{
@@ -41,6 +40,21 @@ export const login = async (req,res) => {
     res.status(200).json({token: token,
         message: "Ha ingresado correctamente!"})
   } else {
-    return res.status(400).json(erroCredenciales)
+    return res.status(400).json(ERROR_CREDENCIALES)
+  }
+}
+
+export async function getDataToken(token){ 
+  if (!token){
+    return null
+  }  else {
+    try{
+      var decoded = jwt.decode(token, config.SECRET_TOKEN, true)
+      var usuario = await Usuario.findById(decoded.id)
+      return usuario
+    } catch(error){
+    console.log("ERROR EN getDataToken")
+      return null;
+    }
   }
 }
