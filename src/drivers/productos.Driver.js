@@ -23,16 +23,18 @@ export const newProduct = async (req,res) => {
 }
 
 export const deleteProduct = async (req,res) => {
-    try{
-    await Producto.findByIdAndDelete(req.params.productId)
-    res.status(200).json(OPERACION_OK)    
+    try{  
+        if (await Producto.findByIdAndDelete(req.params.productId)){
+            return res.status(200).json(OPERACION_OK)   
+        } 
+    res.status(404).json(OPERACION_FAIL)    
     } catch(error){
       res.status(404).json(OPERACION_FAIL)
     } 
 }
 
 export const updateProduct = async (req,res) => {
-    const actualizarProducto = await Producto.findByIdAndUpdate(req.params.productId, req.body, {
+    await Producto.findByIdAndUpdate(req.params.productId, req.body, {
         new: true
     })
     res.status(200).json(OPERACION_OK)
