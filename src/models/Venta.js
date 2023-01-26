@@ -18,6 +18,7 @@ const ventaSchema = new Schema({
         type: Schema.Types.ObjectId 
      }],
      // Para resumenes y estadisticas
+     listadoProductosString: [{type: String}],
      cantidadesCompradas: [{type: Number}],
      subTotales: [{type: Number}],   
      motivoEdicion: String

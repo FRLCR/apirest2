@@ -10,7 +10,7 @@ const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
-                                         .populate({path: 'listadoProductos', select: 'nombre'})   
+                                         .populate({path: 'listadoProductos', select: 'nombre'})                                           
                                          .populate({path: 'vendedor', select: 'email'})
 
     res.status(200).json(sellList)
@@ -43,6 +43,7 @@ export const newVenta = async (req,res) => {
             } else {
                 return res.json(OPERACION_FAIL)
             }
+            // CARGAMOS MANUALMENTE LOS STRING DE LOS NOMBRES PARA FIXEAR SI SE BORRA EL PRODUCTO POSTERIORMENTE
         let listadoProductosString = []
         for (let i = 0; i < listadoProductos.length; i++){
             listadoProductosString.push(listadoProductos[i].nombre)
