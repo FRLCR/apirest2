@@ -7,6 +7,7 @@ const OPERACION_OK= "La operacion se realizó con éxito"
 const OPERACION_FAIL = "ERROR"
 const CARGADO_POR_SISTEMA = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
+const PRODUCTO_FUERA_DE_STOCK = "Uno o varios de los productos seleccionados no tienen stock suficiente"
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
@@ -26,6 +27,11 @@ export const newVenta = async (req,res) => {
     let {totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales} = req.body  
     const camposVacios = !totalRecaudado && !listadoProductos && !cantidadesCompradas && !subTotales
 
+    // Chequeo de Stocks
+    let hayStock = await chequearStock(listadoProductos, cantidadesCompradas)
+    if (!hayStock){
+       return res.json(PRODUCTO_FUERA_DE_STOCK)
+    }
     // Valido quien realizo la compra. Admin por sistema, o Usuario por web
     if (userToken != null && !camposVacios){
         const [userRol] = await Rol.find({_id: {$in: userToken.roles}})  
@@ -42,19 +48,26 @@ export const newVenta = async (req,res) => {
                 vendedor = CARGADO_POR_WEB
             } else {
                 return res.json(OPERACION_FAIL)
-            }
+            }        
             // CARGAMOS MANUALMENTE LOS STRING DE LOS NOMBRES PARA FIXEAR SI SE BORRA EL PRODUCTO POSTERIORMENTE
         let listadoProductosString = []
         for (let i = 0; i < listadoProductos.length; i++){
             let producto = await Producto.findById(listadoProductos[i])
             listadoProductosString.push(producto.nombre)
-            console.log(listadoProductosString)
         }  
         await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
         await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
         res.json(OPERACION_OK)
 }
 
+async function chequearStock(listadoProductos, cantidadesCompradas){
+    let hayStock    
+     for (let i = 0; i < listadoProductos.length ; i++){
+           let producto = Producto.findById(listadoProductos[i])
+         hayStock = producto.cantidad >= cantidadesCompradas[i]
+     }
+    return hayStock;
+}
 // NUEVOP
 async function actualizarStock(listadoProductos, cantidadesCompradas, subTotales){
     let producto = null;
