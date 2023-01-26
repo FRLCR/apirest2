@@ -29,9 +29,7 @@ export const newVenta = async (req,res) => {
 
     // Chequeo de Stocks
     let hayStock = await chequearStock(listadoProductos, cantidadesCompradas)
-    if (!hayStock){
-       return res.json(PRODUCTO_FUERA_DE_STOCK)
-    }
+
     // Valido quien realizo la compra. Admin por sistema, o Usuario por web
     if (userToken != null && !camposVacios){
         const [userRol] = await Rol.find({_id: {$in: userToken.roles}})  
@@ -55,9 +53,14 @@ export const newVenta = async (req,res) => {
             let producto = await Producto.findById(listadoProductos[i])
             listadoProductosString.push(producto.nombre)
         }  
-        await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
-        await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
-        res.json(OPERACION_OK)
+        if (!hayStock){
+            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
+            await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
+            res.json(OPERACION_OK)
+         } else {
+            res.json(PRODUCTO_FUERA_DE_STOCK)
+         }
+
 }
 
 async function chequearStock(listadoProductos, cantidadesCompradas){
