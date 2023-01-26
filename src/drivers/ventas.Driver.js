@@ -53,14 +53,14 @@ export const newVenta = async (req,res) => {
             let producto = await Producto.findById(listadoProductos[i])
             listadoProductosString.push(producto.nombre)
         }  
-        if (!hayStock){
+        console.log(hayStock)
+        if (hayStock){
             await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
             await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
             res.json(OPERACION_OK)
          } else {
-            res.json(PRODUCTO_FUERA_DE_STOCK)
+            res.status(400).json(PRODUCTO_FUERA_DE_STOCK)
          }
-
 }
 
 async function chequearStock(listadoProductos, cantidadesCompradas){
@@ -69,6 +69,7 @@ async function chequearStock(listadoProductos, cantidadesCompradas){
            let producto = Producto.findById(listadoProductos[i])
          hayStock = producto.cantidad >= cantidadesCompradas[i]
      }
+     console.log(hayStock)
     return hayStock;
 }
 // NUEVOP
