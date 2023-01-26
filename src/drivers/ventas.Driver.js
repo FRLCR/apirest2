@@ -46,7 +46,9 @@ export const newVenta = async (req,res) => {
             // CARGAMOS MANUALMENTE LOS STRING DE LOS NOMBRES PARA FIXEAR SI SE BORRA EL PRODUCTO POSTERIORMENTE
         let listadoProductosString = []
         for (let i = 0; i < listadoProductos.length; i++){
-            listadoProductosString.push(listadoProductos[i].nombre)
+            let producto = await Producto.findById(listadoProductos[i])
+            listadoProductosString.push(producto.nombre)
+            console.log(listadoProductosString)
         }  
         await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
         await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
