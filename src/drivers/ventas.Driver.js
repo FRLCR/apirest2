@@ -43,7 +43,11 @@ export const newVenta = async (req,res) => {
             } else {
                 return res.json(OPERACION_FAIL)
             }
-        await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor})).save()
+        let listadoProductosString = []
+        for (let i = 0; i < listadoProductos.length; i++){
+            listadoProductosString.push(listadoProductos[i].nombre)
+        }  
+        await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
         await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
         res.json(OPERACION_OK)
 }

@@ -5,11 +5,7 @@ const OPERACION_FAIL = "ERROR"
 const VALORES_MAX_LISTAS = 4
 
 export const getProductList = async (req,res) => {
-    res.status(200).json(await obtenerListadoProductos())   
-}
-
-async function obtenerListadoProductos(){
-    return await Producto.find()
+    res.status(200).json(await Producto.find()) 
 }
 
 export const newProduct = async (req,res) => {
@@ -25,9 +21,10 @@ export const newProduct = async (req,res) => {
 export const deleteProduct = async (req,res) => {
     try{  
         if (await Producto.findByIdAndDelete(req.params.productId)){
-            return res.status(200).json(OPERACION_OK)   
-        } 
-    res.status(404).json(OPERACION_FAIL)    
+            res.status(200).json(OPERACION_OK)   
+        }else {
+            res.status(404).json(OPERACION_FAIL)
+        }         
     } catch(error){
       res.status(404).json(OPERACION_FAIL)
     } 
