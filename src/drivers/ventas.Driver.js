@@ -2,7 +2,6 @@ import Producto from '../models/Producto.js'
 import Venta from '../models/Venta.js'
 import Rol from '../models/Rol.js'
 import * as Auth from '../drivers/auth.Driver.js'
-import { expectCt } from 'helmet'
 
 const OPERACION_OK= "La operacion se realizó con éxito"
 const OPERACION_FAIL = "ERROR"
@@ -134,4 +133,15 @@ export const updateEstado = async (req,res) => {
 export const getVenta = async (req,res) => {
     const venta = await Venta.findById(req.params.productId)
     res.status(200).json(venta)
+}
+
+export const getStateLenght = async (req,res) => {
+    try {
+    const VENTAS_PENDIENTES = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.PENDIENTE }})).length
+    const VENTAS_FINALIZADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.FINALIZADA }})).length
+    const VENTAS_APROBADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.APROBADA }})).length
+    res.status(200).json({VENTAS_APROBADAS, VENTAS_FINALIZADAS, VENTAS_PENDIENTES})
+    } catch(error){
+        res.status(400).json(OPERACION_FAIL)
+    }
 }
