@@ -7,6 +7,7 @@ const router = Router()
 //  [verifyToken, onlyMods],
 router.get("/", venta.getSellList)
 router.post('/', venta.newVenta)
+router.post('/updateState/:productId', venta.updateEstado)
 router.delete('/:productId', venta.deleteVenta)
 router.put('/:productId', venta.updateVenta)
 router.get('/:productId', venta.getVenta)

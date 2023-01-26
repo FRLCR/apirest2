@@ -2,12 +2,18 @@ import Producto from '../models/Producto.js'
 import Venta from '../models/Venta.js'
 import Rol from '../models/Rol.js'
 import * as Auth from '../drivers/auth.Driver.js'
+import { expectCt } from 'helmet'
 
 const OPERACION_OK= "La operacion se realizó con éxito"
 const OPERACION_FAIL = "ERROR"
 const CARGADO_POR_SISTEMA = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
 const PRODUCTO_FUERA_DE_STOCK = "Uno o varios de los productos seleccionados no tienen stock suficiente"
+const ESTADO_DE_VENTA = {
+    PENDIENTE: "Pendiente de aprobacion",
+    APROBADA: "Aprobada",
+    FINALIZADA: "Finalizada"
+}
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
@@ -18,6 +24,7 @@ export const getSellList = async (req,res) => {
 }
 
 export const newVenta = async (req,res) => {
+    let estado = ESTADO_DE_VENTA.PENDIENTE
     let vendedor
     //Cargo al usuario que haya realizado la compra
     const token = req.headers["x-access-token"] 
@@ -53,25 +60,26 @@ export const newVenta = async (req,res) => {
             let producto = await Producto.findById(listadoProductos[i])
             listadoProductosString.push(producto.nombre)
         }  
-        console.log(hayStock)
-        if (hayStock){
-            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString})).save()
+
+        if (hayStock){            
+            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString, estado})).save()
             await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
             res.json(OPERACION_OK)
          } else {
             res.status(400).json(PRODUCTO_FUERA_DE_STOCK)
          }
 }
-
 async function chequearStock(listadoProductos, cantidadesCompradas){
     let hayStock    
+    let producto
      for (let i = 0; i < listadoProductos.length ; i++){
-           let producto = Producto.findById(listadoProductos[i])
+         producto = await Producto.findById(listadoProductos[i])
          hayStock = producto.cantidad >= cantidadesCompradas[i]
      }
      console.log(hayStock)
     return hayStock;
 }
+
 // NUEVOP
 async function actualizarStock(listadoProductos, cantidadesCompradas, subTotales){
     let producto = null;
@@ -108,6 +116,18 @@ export const updateVenta = async (req,res) => {
         new: true
     })
     res.status(200).json(OPERACION_OK)
+}
+
+export const updateEstado = async (req,res) => {
+    const estadoOk = req.body.estado == ESTADO_DE_VENTA.APROBADA || req.body.estado == ESTADO_DE_VENTA.FINALIZADA
+     if (estadoOk){
+         await Venta.findByIdAndUpdate(req.params.productId, req.body, {
+        new: true
+         })
+         res.status(200).json(OPERACION_OK)
+     } else {
+         res.status(400).json(OPERACION_FAIL)
+     }
 }
 
 export const getVenta = async (req,res) => {

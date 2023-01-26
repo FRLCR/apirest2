@@ -17,11 +17,15 @@ const ventaSchema = new Schema({
         ref: "Producto",
         type: Schema.Types.ObjectId 
      }],
-     // Para resumenes y estadisticas
+     // Esencial para resumenes y estadisticas
      listadoProductosString: [{type: String}],
      cantidadesCompradas: [{type: Number}],
      subTotales: [{type: Number}],   
-     motivoEdicion: String
+     motivoEdicion: String,
+
+     //Esencial manejo de Stock y Logistica
+    estado: String,
+     
 }, {
     timestamps: true,
     versionKey: false
