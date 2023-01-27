@@ -22,7 +22,6 @@ export const getSellList = async (req,res) => {
     res.status(200).json({sellList, ESTADO_DE_VENTA})
 }
 
-
 export const newVenta = async (req,res) => {
     let estado = ESTADO_DE_VENTA.PENDIENTE
     let vendedor
@@ -112,13 +111,18 @@ export const deleteVenta = async (req,res) => {
 }
 
 export const updateVenta = async (req,res) => {
-    const actualizarVenta = await Venta.findByIdAndUpdate(req.params.productId, req.body, {
+    try{
+   await Venta.findByIdAndUpdate(req.params.productId, req.body, {
         new: true
     })
     res.status(200).json(OPERACION_OK)
+} catch(error){
+    res.status(400).json(OPERACION_FAIL)
+}
 }
 
 export const updateEstado = async (req,res) => {
+    try{
     const estadoOk = req.body.estado == ESTADO_DE_VENTA.APROBADA || req.body.estado == ESTADO_DE_VENTA.FINALIZADA
      if (estadoOk){
          await Venta.findByIdAndUpdate(req.params.productId, req.body, {
@@ -127,12 +131,19 @@ export const updateEstado = async (req,res) => {
          res.status(200).json(OPERACION_OK)
      } else {
          res.status(400).json(OPERACION_FAIL)
+     }}catch(error){
+        res.status(400).json(OPERACION_FAIL)
      }
 }
 
 export const getVenta = async (req,res) => {
+    try{
     const venta = await Venta.findById(req.params.productId)
     res.status(200).json(venta)
+    } catch(error){
+        res.status(400).json(OPERACION_FAIL)
+    }
+
 }
 
 export const getStateLenght = async (req,res) => {
@@ -144,4 +155,31 @@ export const getStateLenght = async (req,res) => {
     } catch(error){
         res.status(400).json(OPERACION_FAIL)
     }
+}
+
+export const getRecaudacion = async (req,res) => {
+    const {dia, mes, año} = req.body
+    let respyuesta = await formularRecaudacion(dia, mes, año)
+      res.status(200).json(respyuesta)
+}
+
+async function formularRecaudacion(dia, mes, año){
+    let fecha
+    let recaudacion = 0
+    const especificoDia = (dia > 0 && mes > 0 && año > 0 )
+    mes -= 1
+    if (especificoDia){
+    fecha = new Date(año, mes, dia) 
+    } else {
+        fecha = new Date (año, mes, '01')
+    }
+        const ventaListado = await Venta.find({createdAt: {$gte: fecha}})
+        console.log(fecha)
+        console.log(ventaListado.length)
+
+        ventaListado.forEach((ventaActual)=> {
+            recaudacion += ventaActual.totalRecaudado
+    })
+        
+return recaudacion
 }
