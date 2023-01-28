@@ -8,6 +8,7 @@ const OPERACION_FAIL = "ERROR"
 const CARGADO_POR_SISTEMA = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
 const PRODUCTO_FUERA_DE_STOCK = "Uno o varios de los productos seleccionados no tienen stock suficiente"
+
 const ESTADO_DE_VENTA = {
     PENDIENTE: "Pendiente de aprobacion",
     APROBADA: "Aprobada",
@@ -163,13 +164,18 @@ export const getStateLenght = async (req, res) => {
 }
 
 export const getResumen = async (req, res) => {
+    try{
         let resumenBuscado 
         let format = "%Y"
         const {fechaGrande, fechaChica, periodo} = req.body
         if (periodo == 'ANUAL' || !periodo){   
+           
             resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
+            console.log(resumenBuscado)
+
             if (!fechaGrande && !fechaChica && !periodo){
             let fecha = new Date().getFullYear()
+            
             resumenBuscado.forEach(resumen => {
                 if (resumen._id == fecha){
                     resumenBuscado = resumen
@@ -184,16 +190,19 @@ export const getResumen = async (req, res) => {
             resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
         }  
        res.status(200).json(resumenBuscado) 
+    }catch(error){
+        res.status(400).json(OPERACION_FAIL)
+    }
 } 
 
 async function emitirEstadisticas(fechaGrande, fechaChica, format){
    let estadisticas
    const desde =  new Date(fechaChica)
-   const hasta = new Date(fechaGrande)
-    if (!hasta && !desde){
+   const hasta = new Date(fechaGrande)   
+    if (!fechaGrande && !fechaChica){
         estadisticas = await Venta.aggregate([
           { $group: {
-              _id: { $dateToString: { date: "$createdAt", format: "%Y"} /* format: "%m-%Y"}  */    },
+              _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
                totalRecaudado: { $sum: "$totalRecaudado" },
                  cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
          }}
@@ -211,8 +220,5 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format){
        }}
    ])                                                  
     }
-    console.log(estadisticas)
 return estadisticas
 }
-
-/* /stats/resumenAnual */
