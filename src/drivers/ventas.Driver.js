@@ -178,17 +178,19 @@ export const getResumen = async (req, res) => {
             }
         }else if (periodo == 'MENSUAL'){
                format = "%m-%Y"
-            resumenBuscado = await emitirEstadisticas(new Date(fechaGrande), new Date(fechaChica), format)   
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
         } else{
             format = "%d-%m-%Y"
-            resumenBuscado = await emitirEstadisticas(new Date(fechaGrande), new Date(fechaChica), format) 
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
         }  
        res.status(200).json(resumenBuscado) 
 } 
 
 async function emitirEstadisticas(fechaGrande, fechaChica, format){
    let estadisticas
-    if (!fechaGrande && !fechaChica){
+   const desde =  new Date(fechaChica)
+   const hasta = new Date(fechaGrande)
+    if (!hasta && !desde){
         estadisticas = await Venta.aggregate([
           { $group: {
               _id: { $dateToString: { date: "$createdAt", format: "%Y"} /* format: "%m-%Y"}  */    },
@@ -200,8 +202,8 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format){
       estadisticas = await Venta.aggregate([
         {$match:
             {'createdAt':
-              { $gte: fechaChica,
-                $lte: fechaGrande } } },
+              { $gte: desde,
+                $lte: hasta } } },
         { $group: {
             _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
              totalRecaudado: { $sum: "$totalRecaudado" },
@@ -209,6 +211,7 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format){
        }}
    ])                                                  
     }
+    console.log(estadisticas)
 return estadisticas
 }
 
