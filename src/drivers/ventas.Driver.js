@@ -13,6 +13,11 @@ const ESTADO_DE_VENTA = {
     APROBADA: "Aprobada",
     FINALIZADA: "Finalizada"
 }
+const PERIODO_FILTRO = {
+    DIARIO: "%d-%m-%Y",
+    MENSUAL: "%m-%Y",
+    ANUAL: "%Y"
+}
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
@@ -151,7 +156,7 @@ export const getVenta = async (req,res) => {
 
 }
 
-export const getStateLenght = async (res) => {
+export const getStateLenght = async (req, res) => {
     try {
     const VENTAS_PENDIENTES = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.PENDIENTE }})).length
     const VENTAS_FINALIZADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.FINALIZADA }})).length
@@ -163,14 +168,25 @@ export const getStateLenght = async (res) => {
 }
 
 export const getResumenAnual = async (req, res) => {
-    try{
-        const fechaActual = new Date()
-    const resumen =  await formularRecaudacionAnual(fechaActual)
-      res.status(200).json(resumen)
-    } catch(error){
-     //   res.status(400).json(OPERACION_FAIL)
-    }
-}
+  
+        let format
+        let fecha
+        let resumenBuscado 
+        const {fechaGrande, fechaChica, periodo} = req.body
+
+            format = PERIODO_FILTRO['ANUAL']
+            fecha = new Date().getFullYear()
+            let resumenes = await emitirEstadisticas(format)                     
+            resumenes.forEach(resumen => {
+              if (resumen._id == fecha){
+                  resumenBuscado = resumen
+              }
+            });
+        
+            console.log(fechaGrande, fechaChica, periodo)
+        console.log(resumenBuscado)
+       res.status(200).json(resumenBuscado) 
+} 
 
 export const getResumen = async (req,res) => {
     try{
@@ -182,16 +198,15 @@ export const getResumen = async (req,res) => {
     }
 }     
 
-async function formularRecaudacionAnual(fechaActual){
-const grupoVentas = await Venta.aggregate([
+async function emitirEstadisticas(format){
+ const grupoVentas = await Venta.aggregate([
     { $group: {
-      _id: { $dateToString: { date: "$createdAt", format: "%m-%Y" } },
+      _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
       totalRecaudado: { $sum: "$totalRecaudado" },
       cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
     }}
  ])
- 
-console.log(grupoVentas)
+ return grupoVentas
 }
 
 /* /stats/resumenAnual */
