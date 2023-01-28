@@ -15,10 +15,8 @@ router.post('/updateState/:productId', venta.updateEstado)
 router.get('/stats/lenghts', venta.getStateLenght)
 
 // Por defecto, al iniciar el menu Estadisticas
-router.get('/stats/recaudacion', venta.getResumen) // AL CARGAR EL MENU ESTADISTICAS
-router.post('/stats/resumenAnual', venta.getResumenAnual) 
-// FIN CARGA INICIAL ESTADISTICAS
-
+router.get('/stats/recaudacion', venta.getResumen)
 router.post('/stats/recaudacion', venta.getResumen) // AL SOLICITAR PERIODO ESPECIFICO
+
 
 export default router

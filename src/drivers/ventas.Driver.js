@@ -162,7 +162,7 @@ export const getStateLenght = async (req, res) => {
     }
 }
 
-export const getResumenAnual = async (req, res) => {
+export const getResumen = async (req, res) => {
         let resumenBuscado 
         let format = "%Y"
         const {fechaGrande, fechaChica, periodo} = req.body
@@ -185,16 +185,6 @@ export const getResumenAnual = async (req, res) => {
         }  
        res.status(200).json(resumenBuscado) 
 } 
-
-export const getResumen = async (req,res) => {
-    try{
-    const {fechaGrande, fechaChica} = req.body
-    const resumen = await formularRecaudacion(fechaGrande, fechaChica)
-      res.status(200).json(resumen)
-    } catch(error){
-        res.status(400).json(OPERACION_FAIL)
-    }
-}     
 
 async function emitirEstadisticas(fechaGrande, fechaChica, format){
    let estadisticas
