@@ -20,15 +20,14 @@ const ventaSchema = new Schema({
      // Esencial para resumenes y estadisticas
      listadoProductosString: [{type: String}],
      cantidadesCompradas: [{type: Number}],
+     cantidadesCompradasTotal: Number,
      subTotales: [{type: Number}],   
      motivoEdicion: String,
 
      //Esencial manejo de Stock y Logistica
-    estado: String,
-     
+    estado: String, // Asociada a los enum de estadodeventa.js    
 }, {
     timestamps: true,
     versionKey: false
 })
-
 export default model('Venta', ventaSchema);

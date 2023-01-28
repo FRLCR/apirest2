@@ -54,14 +54,19 @@ export const newVenta = async (req,res) => {
                 return res.json(OPERACION_FAIL)
             }        
             // CARGAMOS MANUALMENTE LOS STRING DE LOS NOMBRES PARA FIXEAR SI SE BORRA EL PRODUCTO POSTERIORMENTE
-        let listadoProductosString = []
+        let listadoProductosString = []  
+        
+        let cantidadesCompradasTotal = 0
+        cantidadesCompradas.forEach(cantidad => {
+            cantidadesCompradasTotal+= cantidad
+        });
         for (let i = 0; i < listadoProductos.length; i++){
             let producto = await Producto.findById(listadoProductos[i])
             listadoProductosString.push(producto.nombre)
         }  
 
         if (hayStock){            
-            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString, estado})).save()
+            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString, estado, cantidadesCompradasTotal})).save()
             await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
             res.json(OPERACION_OK)
          } else {
@@ -146,7 +151,7 @@ export const getVenta = async (req,res) => {
 
 }
 
-export const getStateLenght = async (req,res) => {
+export const getStateLenght = async (res) => {
     try {
     const VENTAS_PENDIENTES = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.PENDIENTE }})).length
     const VENTAS_FINALIZADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.FINALIZADA }})).length
@@ -157,29 +162,36 @@ export const getStateLenght = async (req,res) => {
     }
 }
 
-export const getRecaudacion = async (req,res) => {
-    const {dia, mes, año} = req.body
-    let respyuesta = await formularRecaudacion(dia, mes, año)
-      res.status(200).json(respyuesta)
-}
-
-async function formularRecaudacion(dia, mes, año){
-    let fecha
-    let recaudacion = 0
-    const especificoDia = (dia > 0 && mes > 0 && año > 0 )
-    mes -= 1
-    if (especificoDia){
-    fecha = new Date(año, mes, dia) 
-    } else {
-        fecha = new Date (año, mes, '01')
+export const getResumenAnual = async (req, res) => {
+    try{
+        const fechaActual = new Date()
+    const resumen =  await formularRecaudacionAnual(fechaActual)
+      res.status(200).json(resumen)
+    } catch(error){
+     //   res.status(400).json(OPERACION_FAIL)
     }
-        const ventaListado = await Venta.find({createdAt: {$gte: fecha}})
-        console.log(fecha)
-        console.log(ventaListado.length)
-
-        ventaListado.forEach((ventaActual)=> {
-            recaudacion += ventaActual.totalRecaudado
-    })
-        
-return recaudacion
 }
+
+export const getResumen = async (req,res) => {
+    try{
+    const {fechaGrande, fechaChica} = req.body
+    const resumen = await formularRecaudacion(fechaGrande, fechaChica)
+      res.status(200).json(resumen)
+    } catch(error){
+        res.status(400).json(OPERACION_FAIL)
+    }
+}     
+
+async function formularRecaudacionAnual(fechaActual){
+const grupoVentas = await Venta.aggregate([
+    { $group: {
+      _id: { $dateToString: { date: "$createdAt", format: "%m-%Y" } },
+      totalRecaudado: { $sum: "$totalRecaudado" },
+      cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
+    }}
+ ])
+ 
+console.log(grupoVentas)
+}
+
+/* /stats/resumenAnual */
