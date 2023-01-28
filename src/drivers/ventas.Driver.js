@@ -168,19 +168,20 @@ export const getResumen = async (req, res) => {
         let resumenBuscado 
         let format = "%Y"
         const {fechaGrande, fechaChica, periodo} = req.body
-        if (periodo == 'ANUAL' || !periodo){   
-           
-            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
-            console.log(resumenBuscado)
-
+        if (periodo == 'ANUAL'){   
             if (!fechaGrande && !fechaChica && !periodo){
+                format = "%m-%Y"
+                resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
             let fecha = new Date().getFullYear()
-            
+
             resumenBuscado.forEach(resumen => {
                 if (resumen._id == fecha){
                     resumenBuscado = resumen
                 }
               });
+            } else{ 
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
+            console.log(resumenBuscado)
             }
         }else if (periodo == 'MENSUAL'){
                format = "%m-%Y"
