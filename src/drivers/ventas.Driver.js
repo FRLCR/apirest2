@@ -13,11 +13,6 @@ const ESTADO_DE_VENTA = {
     APROBADA: "Aprobada",
     FINALIZADA: "Finalizada"
 }
-const PERIODO_FILTRO = {
-    DIARIO: "%d-%m-%Y",
-    MENSUAL: "%m-%Y",
-    ANUAL: "%Y"
-}
 
 export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
@@ -168,23 +163,26 @@ export const getStateLenght = async (req, res) => {
 }
 
 export const getResumenAnual = async (req, res) => {
-  
-        let format
-        let fecha
         let resumenBuscado 
+        let format = "%Y"
         const {fechaGrande, fechaChica, periodo} = req.body
-
-            format = PERIODO_FILTRO['ANUAL']
-            fecha = new Date().getFullYear()
-            let resumenes = await emitirEstadisticas(format)                     
-            resumenes.forEach(resumen => {
-              if (resumen._id == fecha){
-                  resumenBuscado = resumen
-              }
-            });
-        
-            console.log(fechaGrande, fechaChica, periodo)
-        console.log(resumenBuscado)
+        if (periodo == 'ANUAL' || !periodo){   
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
+            if (!fechaGrande && !fechaChica && !periodo){
+            let fecha = new Date().getFullYear()
+            resumenBuscado.forEach(resumen => {
+                if (resumen._id == fecha){
+                    resumenBuscado = resumen
+                }
+              });
+            }
+        }else if (periodo == 'MENSUAL'){
+               format = "%m-%Y"
+            resumenBuscado = await emitirEstadisticas(new Date(fechaGrande), new Date(fechaChica), format)   
+        } else{
+            format = "%d-%m-%Y"
+            resumenBuscado = await emitirEstadisticas(new Date(fechaGrande), new Date(fechaChica), format) 
+        }  
        res.status(200).json(resumenBuscado) 
 } 
 
@@ -198,15 +196,30 @@ export const getResumen = async (req,res) => {
     }
 }     
 
-async function emitirEstadisticas(format){
- const grupoVentas = await Venta.aggregate([
-    { $group: {
-      _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
-      totalRecaudado: { $sum: "$totalRecaudado" },
-      cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
-    }}
- ])
- return grupoVentas
+async function emitirEstadisticas(fechaGrande, fechaChica, format){
+   let estadisticas
+    if (!fechaGrande && !fechaChica){
+        estadisticas = await Venta.aggregate([
+          { $group: {
+              _id: { $dateToString: { date: "$createdAt", format: "%Y"} /* format: "%m-%Y"}  */    },
+               totalRecaudado: { $sum: "$totalRecaudado" },
+                 cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
+         }}
+     ])
+    } else{
+      estadisticas = await Venta.aggregate([
+        {$match:
+            {'createdAt':
+              { $gte: fechaChica,
+                $lte: fechaGrande } } },
+        { $group: {
+            _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
+             totalRecaudado: { $sum: "$totalRecaudado" },
+               cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
+       }}
+   ])                                                  
+    }
+return estadisticas
 }
 
 /* /stats/resumenAnual */
