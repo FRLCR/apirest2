@@ -236,7 +236,7 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicia
              totalRecaudado: { $sum: "$totalRecaudado" },
                cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
        }}
-     ])                                                  
+     ]).sort({_id: -1})                                                  
     }
 return estadisticas
 }
