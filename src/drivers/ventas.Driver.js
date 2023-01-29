@@ -149,14 +149,31 @@ export const getVenta = async (req,res) => {
     } catch(error){
         res.status(400).json(OPERACION_FAIL)
     }
-
 }
 
 export const getStateLenght = async (req, res) => {
     try {
-    const VENTAS_PENDIENTES = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.PENDIENTE }})).length
-    const VENTAS_FINALIZADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.FINALIZADA }})).length
-    const VENTAS_APROBADAS = (await Venta.find({estado: {$in: ESTADO_DE_VENTA.APROBADA }})).length
+        let VENTAS_APROBADAS = 0
+        let VENTAS_PENDIENTES = 0
+        let VENTAS_FINALIZADAS = 0
+
+        const totalesVentas = await Venta.aggregate([
+            { $group: {
+                _id: {estado: "$estado"},
+                totales: {$sum: 1}
+           }}
+       ])
+
+       totalesVentas.forEach(venta => {
+         if (venta._id.estado == ESTADO_DE_VENTA.PENDIENTE){
+              VENTAS_PENDIENTES = venta.totales
+         } else if (venta._id.estado == ESTADO_DE_VENTA.APROBADA){
+              VENTAS_APROBADAS = venta.totales
+           } else {
+              VENTAS_FINALIZADAS = venta.totales
+             }
+       });
+
     res.status(200).json({VENTAS_APROBADAS, VENTAS_FINALIZADAS, VENTAS_PENDIENTES})
     } catch(error){
         res.status(400).json(OPERACION_FAIL)
@@ -164,51 +181,51 @@ export const getStateLenght = async (req, res) => {
 }
 
 export const getResumen = async (req, res) => {
-    try{
+    try{         
+        const {fechaGrande, fechaChica, periodo} = req.body  
+        const esCargaInicial = (!fechaGrande && !fechaChica && !periodo)      
         let resumenBuscado 
         let format = "%Y"
-        const {fechaGrande, fechaChica, periodo} = req.body
-        if (periodo == 'ANUAL'){   
-            if (!fechaGrande && !fechaChica && !periodo){
-                format = "%m-%Y"
-                resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
-            let fecha = new Date().getFullYear()
 
-            resumenBuscado.forEach(resumen => {
-                if (resumen._id == fecha){
-                    resumenBuscado = resumen
-                }
-              });
-            } else{ 
-            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
-            console.log(resumenBuscado)
-            }
-        }else if (periodo == 'MENSUAL'){
-               format = "%m-%Y"
-            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
-        } else{
-            format = "%d-%m-%Y"
-            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
-        }  
+        if (esCargaInicial){
+            format = "%m-%Y"
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicial)            
+        } else if (periodo == 'ANUAL'){             
+            resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicial)          
+          } else if (periodo == 'MENSUAL' && !esCargaInicial ){
+                format = "%m-%Y"
+                resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicial)
+            } else {
+                format = "%d-%m-%Y"
+                resumenBuscado = await emitirEstadisticas(fechaGrande, fechaChica, format) 
+              }  
        res.status(200).json(resumenBuscado) 
     }catch(error){
         res.status(400).json(OPERACION_FAIL)
     }
 } 
 
-async function emitirEstadisticas(fechaGrande, fechaChica, format){
+async function emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicial){
    let estadisticas
    const desde =  new Date(fechaChica)
    const hasta = new Date(fechaGrande)   
-    if (!fechaGrande && !fechaChica){
-        estadisticas = await Venta.aggregate([
+
+   //SI ES CARGA INICIAL:
+    if (!fechaGrande && !fechaChica && esCargaInicial){
+        const añoActual = new Date().getFullYear()
+        let resumenCargaInicial = await Venta.aggregate([
           { $group: {
               _id: { $dateToString: { date: "$createdAt", format} /* format: "%m-%Y"}  */    },
                totalRecaudado: { $sum: "$totalRecaudado" },
                  cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
          }}
      ])
-    } else{
+     estadisticas = []
+     resumenCargaInicial.forEach(resumen => {
+        if (resumen._id.includes(añoActual))
+            estadisticas.push(resumen)
+     });
+    } else{ // SI NO:
       estadisticas = await Venta.aggregate([
         {$match:
             {'createdAt':
@@ -219,7 +236,7 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format){
              totalRecaudado: { $sum: "$totalRecaudado" },
                cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
        }}
-   ])                                                  
+     ])                                                  
     }
 return estadisticas
 }

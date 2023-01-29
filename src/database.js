@@ -6,3 +6,5 @@ mongoose.connect("mongodb+srv://francotds:franco123@dbf.rc79oqk.mongodb.net/?ret
 })
 .then(db => console.log("CONECTADO"))
 .catch(error => console.log(error))
+
+// Conectar a la DB del Cliente

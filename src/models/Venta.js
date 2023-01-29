@@ -17,15 +17,17 @@ const ventaSchema = new Schema({
         ref: "Producto",
         type: Schema.Types.ObjectId 
      }],
+
      // Esencial para resumenes y estadisticas
      listadoProductosString: [{type: String}],
      cantidadesCompradas: [{type: Number}],
      cantidadesCompradasTotal: Number,
      subTotales: [{type: Number}],   
-     motivoEdicion: String,
 
      //Esencial manejo de Stock y Logistica
     estado: String, // Asociada a los enum de estadodeventa.js    
+    estaPago: Boolean,
+    
 }, {
     timestamps: true,
     versionKey: false

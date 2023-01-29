@@ -13,7 +13,21 @@ const usuarioSchema = new Schema({
     roles: [{
     ref: "Rol",
     type: Schema.Types.ObjectId
-   }]
+   }],
+
+   // Exclusivo Clientes || DATOS DE COMPRA:
+   nombre: {type: String, required: true}, 
+   apellido: {type: String, required: true}, 
+   dni: {type: Number, required: true}, 
+   telefono: {type: Number, required: true},
+   provincia:{type: String, required: true},
+   ciudad:{type: String, required: true},   
+   cp: {type: Number, required: true},
+   direccion:{type: String, required: true},
+   notasExtra:{type: String},
+   
+
+
 }, {
     timestamps: true,
     versionKey: false
