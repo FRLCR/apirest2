@@ -9,10 +9,11 @@ const CARGADO_POR_SISTEMA = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
 const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
 const PRODUCTO_FUERA_DE_STOCK = "Uno o varios de los productos seleccionados no tienen stock suficiente"
 
-const ESTADO_DE_VENTA = {
-    PENDIENTE: "Pendiente de aprobacion",
-    APROBADA: "Aprobada",
-    FINALIZADA: "Finalizada"
+const ESTADO_DE_PEDIDO = {
+    NUEVO: "NUEVO PEDIDO",
+    CONFIRMADO: "CONFIRMADO",
+    DESPACHADO: "DESPACHADO",
+    ENTREGADO: "ENTREGADO",
 }
 
 export const getSellList = async (req,res) => {
@@ -20,11 +21,11 @@ export const getSellList = async (req,res) => {
                                          .populate({path: 'listadoProductos', select: 'nombre'})                                           
                                          .populate({path: 'vendedor', select: 'email'})
 
-    res.status(200).json({sellList, ESTADO_DE_VENTA})
+    res.status(200).json({sellList, ESTADO_DE_PEDIDO})
 }
 
 export const newVenta = async (req,res) => {
-    let estado = ESTADO_DE_VENTA.PENDIENTE
+    let estado = ESTADO_DE_PEDIDO.NUEVO
     let vendedor
     //Cargo al usuario que haya realizado la compra
     const token = req.headers["x-access-token"] 
@@ -129,7 +130,7 @@ export const updateVenta = async (req,res) => {
 
 export const updateEstado = async (req,res) => {
     try{
-    const estadoOk = req.body.estado == ESTADO_DE_VENTA.APROBADA || req.body.estado == ESTADO_DE_VENTA.FINALIZADA
+    const estadoOk = req.body.estado == ESTADO_DE_PEDIDO.CONFIRMADO || req.body.estado == ESTADO_DE_PEDIDO.DESPACHADO || req.body.estado == ESTADO_DE_PEDIDO.ENTREGADO
      if (estadoOk){
          await Venta.findByIdAndUpdate(req.params.productId, req.body, {
         new: true
@@ -153,9 +154,10 @@ export const getVenta = async (req,res) => {
 
 export const getStateLenght = async (req, res) => {
     try {
-        let VENTAS_APROBADAS = 0
-        let VENTAS_PENDIENTES = 0
-        let VENTAS_FINALIZADAS = 0
+        let PEDIDOS_NUEVOS = 0        
+        let PEDIDOS_CONFIRMADOS = 0
+        let PEDIDOS_DESPACHADOS = 0
+        let PEDIDOS_ENTREGADOS = 0
 
         const totalesVentas = await Venta.aggregate([
             { $group: {
@@ -165,16 +167,18 @@ export const getStateLenght = async (req, res) => {
        ])
 
        totalesVentas.forEach(venta => {
-         if (venta._id.estado == ESTADO_DE_VENTA.PENDIENTE){
-              VENTAS_PENDIENTES = venta.totales
-         } else if (venta._id.estado == ESTADO_DE_VENTA.APROBADA){
-              VENTAS_APROBADAS = venta.totales
-           } else {
-              VENTAS_FINALIZADAS = venta.totales
+         if (venta._id.estado == ESTADO_DE_PEDIDO.NUEVO){
+              PEDIDOS_NUEVOS = venta.totales
+         } else if (venta._id.estado ==ESTADO_DE_PEDIDO.CONFIRMADO){
+              PEDIDOS_CONFIRMADOS = venta.totales
+           } else if (venta._id.estado ==ESTADO_DE_PEDIDO.DESPACHADO){
+              PEDIDOS_DESPACHADOS = venta.totales
+             } else {
+                PEDIDOS_ENTREGADOS = venta.totales
              }
        });
 
-    res.status(200).json({VENTAS_APROBADAS, VENTAS_FINALIZADAS, VENTAS_PENDIENTES})
+    res.status(200).json({PEDIDOS_NUEVOS, PEDIDOS_CONFIRMADOS, PEDIDOS_DESPACHADOS, PEDIDOS_ENTREGADOS})
     } catch(error){
         res.status(400).json(OPERACION_FAIL)
     }
@@ -219,7 +223,7 @@ async function emitirEstadisticas(fechaGrande, fechaChica, format, esCargaInicia
                totalRecaudado: { $sum: "$totalRecaudado" },
                  cantidadesTotal: {$sum: "$cantidadesCompradasTotal"},
          }}
-     ])
+     ]).sort({_id: -1}) 
      estadisticas = []
      resumenCargaInicial.forEach(resumen => {
         if (resumen._id.includes(añoActual))
