@@ -7,12 +7,12 @@ const ERROR_CREDENCIALES = "Usuario y/o contraseña incorrectos!"
 
 export const register = async (req,res) => {
 try{
-    const {email, password, roles} = req.body
+    const {email, password, roles, datosEnvio} = req.body
     const newUser = new Usuario({
         email,
-        password: await Usuario.hashPassword(password)
+        password: await Usuario.hashPassword(password),
+        datosEnvio,
     }) 
-    console.log(roles)
     if(roles){
         const hayRol = await Rol.find({nombre: {$in: roles }})
         newUser.roles = hayRol.map(roles => roles._id)
@@ -23,7 +23,6 @@ try{
     const usuarioGuardado = await newUser.save();
     const token = jwt.sign({id : usuarioGuardado._id}, config.SECRET_TOKEN, {expiresIn: config.TIEMPO_EXPIRA})
 
-    console.log(usuarioGuardado)
     res.status(200).json({token})
   } catch(error){
     res.status(404).json({message: "ERROR"})

@@ -5,8 +5,8 @@ import * as Auth from '../drivers/auth.Driver.js'
 
 const OPERACION_OK= "La operacion se realizó con éxito"
 const OPERACION_FAIL = "ERROR"
-const CARGADO_POR_SISTEMA = "63bd926891886547dc9b4ae3" // ID CARGA POR SISTEMA
-const CARGADO_POR_WEB = "63bd927751c0f572d9c5dbdf"  // ID CARGA POR WEB
+const CARGADO_POR_SISTEMA = "63d857130f0c61527292f9f9" // ID CARGA POR SISTEMA
+const CARGADO_POR_WEB = "63d857560f0c61527292f9fc"  // ID CARGA POR WEB
 const PRODUCTO_FUERA_DE_STOCK = "Uno o varios de los productos seleccionados no tienen stock suficiente"
 
 const ESTADO_DE_PEDIDO = {
@@ -17,10 +17,11 @@ const ESTADO_DE_PEDIDO = {
 }
 
 export const getSellList = async (req,res) => {
-    const sellList = await Venta.find({}).populate({path:'comprador', select:'email'})
+    const sellList = await Venta.find({}).populate({path:'comprador', select:'datosEnvio'}) 
                                          .populate({path: 'listadoProductos', select: 'nombre'})                                           
                                          .populate({path: 'vendedor', select: 'email'})
 
+                                         console.log(sellList[0].datosEnvio)
     res.status(200).json({sellList, ESTADO_DE_PEDIDO})
 }
 
@@ -164,8 +165,7 @@ export const getStateLenght = async (req, res) => {
                 _id: {estado: "$estado"},
                 totales: {$sum: 1}
            }}
-       ])
-       
+       ])       
        totalesVentas.forEach(venta => {
          if (venta._id.estado == ESTADO_DE_PEDIDO.NUEVO){
               PEDIDOS_NUEVOS = venta.totales
@@ -177,7 +177,6 @@ export const getStateLenght = async (req, res) => {
                 PEDIDOS_ENTREGADOS = venta.totales
              }
        });
-
     res.status(200).json({PEDIDOS_NUEVOS, PEDIDOS_CONFIRMADOS, PEDIDOS_DESPACHADOS, PEDIDOS_ENTREGADOS})
     } catch(error){
         res.status(400).json(OPERACION_FAIL)

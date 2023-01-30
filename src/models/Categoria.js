@@ -2,7 +2,7 @@ import {Schema, model} from 'mongoose'
 
 const categoriaSchema = new Schema({
     //Escencial para el Producto
-    nombre: String,
+    nombre: {type: String, required: true}
 }, {
     timestamps: true,
     versionKey: false

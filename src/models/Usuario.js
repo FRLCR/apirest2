@@ -15,18 +15,19 @@ const usuarioSchema = new Schema({
     type: Schema.Types.ObjectId
    }],
 
-   // Exclusivo Clientes || DATOS DE COMPRA:
-   nombre: {type: String, required: true}, 
-   apellido: {type: String, required: true}, 
-   dni: {type: Number, required: true}, 
-   telefono: {type: Number, required: true},
-   provincia:{type: String, required: true},
-   ciudad:{type: String, required: true},   
-   cp: {type: Number, required: true},
-   direccion:{type: String, required: true},
-   notasExtra:{type: String},
-   
-
+      // Exclusivo Clientes || DATOS DE ENVIO:
+   datosEnvio: {
+    nombre: {type: String, required: true}, 
+    apellido: {type: String, required: true}, 
+    dni: {type: Number, required: true}, 
+    telefono: {type: Number, required: true},
+    provincia:{type: String, required: true},
+    ciudad:{type: String, required: true},   
+    cp: {type: Number, required: true},
+    direccion:{type: String, required: true},
+    altura:{type: Number, required: true},
+    notasExtra:{type: String},
+   }
 
 }, {
     timestamps: true,

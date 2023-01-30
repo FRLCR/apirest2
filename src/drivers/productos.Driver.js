@@ -79,7 +79,7 @@ async function generarListasMaximos(listadoProductos){
 }
 
 function bajoStock(listadoProductos){
-    const MINIMO_STOCK_ALERT = 500000 // Luego que provenga de UserConfig.MINIMO_STOCK_ALERT
+    const MINIMO_STOCK_ALERT = 15 // Luego que provenga de UserConfig.MINIMO_STOCK_ALERT
     let listadoBajoStock = []
     let bajoStock = false
 
