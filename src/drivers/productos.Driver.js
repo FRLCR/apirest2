@@ -11,7 +11,7 @@ export const getProductList = async (req,res) => {
 
 export const getProductLists = async (req, res) => {
     try {  
-    const LISTADO_DE_PRODUCTOS = await Producto.find()
+    const LISTADO_DE_PRODUCTOS = await Producto.find().populate({path:'categoria', select:'nombre'})
     const PRODUCTOS_BAJO_STOCK = bajoStock(LISTADO_DE_PRODUCTOS)
     
     const listas = {
@@ -26,8 +26,8 @@ export const getProductLists = async (req, res) => {
 
 export const newProduct = async (req,res) => {
     try{
-    const {nombre, cantidad, precio} = req.body
-    await (new Producto({nombre, cantidad, precio})).save()
+    const {nombre, cantidad, precio, categoria} = req.body
+    await (new Producto({nombre, cantidad, precio, categoria})).save()
     res.json(OPERACION_OK)
     } catch(error){
        res.status(404).json(OPERACION_FAIL)

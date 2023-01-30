@@ -16,11 +16,11 @@ export const getCategoriaList = async (req,res) => {
 }
 
 export const newCategoria = async (req,res) => {
-
-    const {nombre} = req.body
-    const CAMPO_VACIO = !nombre
-
+    const {nombreMinuscula} = req.body
+    const CAMPO_VACIO = !nombreMinuscula
+    console.log(CAMPO_VACIO)
     if (!CAMPO_VACIO){
+        const nombre = nombreMinuscula.toUpperCase()
     await (new Categoria({nombre})).save()
     res.status(200).json(OPERACION_OK)
     }  else {
