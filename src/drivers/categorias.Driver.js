@@ -12,7 +12,7 @@ router.get('/:productId', categoria.getProduct) */
 
 
 export const getCategoriaList = async (req,res) => {
-    res.status(200).json(await Categoria.find().populate({path:'categoria', select:'nombre'})) 
+    res.status(200).json(await Categoria.find()) 
 }
 
 export const newCategoria = async (req,res) => {
