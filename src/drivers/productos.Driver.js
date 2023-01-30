@@ -4,9 +4,22 @@ const OPERACION_OK= "La operacion se realizó con éxito"
 const OPERACION_FAIL = "ERROR"
 const VALORES_MAX_LISTAS = 4
 
+
 export const getProductList = async (req,res) => {
     res.status(200).json(await Producto.find()) 
 }
+
+export const getProductLists = async (req, res) => {
+    try {  
+    const LISTADO_DE_PRODUCTOS = await Producto.find()
+    const PRODUCTOS_BAJO_STOCK = bajoStock(LISTADO_DE_PRODUCTOS)
+
+    res.status(200).json([{LISTADO_DE_PRODUCTOS}, {PRODUCTOS_BAJO_STOCK} ])
+    } catch(error){
+        res.status(400).json(OPERACION_FAIL)
+    }
+}
+
 
 export const newProduct = async (req,res) => {
     try{
@@ -60,4 +73,18 @@ async function generarListasMaximos(listadoProductos){
         }
     }
    return listaDeMaximos
+}
+
+function bajoStock(listadoProductos){
+    let MINIMO_STOCK_ALERT = 500000 // Luego que provenga de UserConfig.MINIMO_STOCK_ALERT
+    let listadoBajoStock = []
+    let bajoStock = false
+
+    listadoProductos.forEach(producto => {        
+        bajoStock = producto.cantidad <= MINIMO_STOCK_ALERT
+        if (bajoStock){
+            listadoBajoStock.push(producto)
+        }
+    });
+    return listadoBajoStock
 }

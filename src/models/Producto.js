@@ -3,7 +3,7 @@ import {Schema, model} from 'mongoose'
 const productoSchema = new Schema({
     //Escencial para el Producto
     nombre: String,
-    cantidad: String,
+    cantidad: Number,
     precio: Number,
 
     // Escencial estadisticas

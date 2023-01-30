@@ -165,7 +165,7 @@ export const getStateLenght = async (req, res) => {
                 totales: {$sum: 1}
            }}
        ])
-
+       
        totalesVentas.forEach(venta => {
          if (venta._id.estado == ESTADO_DE_PEDIDO.NUEVO){
               PEDIDOS_NUEVOS = venta.totales

@@ -5,7 +5,7 @@ import {verifyToken, onlyMods} from '../middlewares/index.js'
 const router = Router()
 
 //  [verifyToken, onlyMods],
-router.get("/", producto.getProductList)
+router.get("/", producto.getProductLists)
 router.post('/', producto.newProduct)
 
 
