@@ -24,7 +24,6 @@ export const getProductLists = async (req, res) => {
     }
 }
 
-
 export const newProduct = async (req,res) => {
     try{
     const {nombre, cantidad, precio} = req.body
@@ -80,7 +79,7 @@ async function generarListasMaximos(listadoProductos){
 }
 
 function bajoStock(listadoProductos){
-    let MINIMO_STOCK_ALERT = 500000 // Luego que provenga de UserConfig.MINIMO_STOCK_ALERT
+    const MINIMO_STOCK_ALERT = 500000 // Luego que provenga de UserConfig.MINIMO_STOCK_ALERT
     let listadoBajoStock = []
     let bajoStock = false
 

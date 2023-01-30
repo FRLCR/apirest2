@@ -5,6 +5,10 @@ const productoSchema = new Schema({
     nombre: String,
     cantidad: Number,
     precio: Number,
+    categoria: [{
+        ref: "Categoria",
+        type: Schema.Types.ObjectId
+       }],
 
     // Escencial estadisticas
     historicoRecaudado: {type: Number, default: 0},
