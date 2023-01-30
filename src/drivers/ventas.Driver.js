@@ -20,8 +20,6 @@ export const getSellList = async (req,res) => {
     const sellList = await Venta.find({}).populate({path:'comprador', select:'datosEnvio'}) 
                                          .populate({path: 'listadoProductos', select: 'nombre'})                                           
                                          .populate({path: 'vendedor', select: 'email'})
-
-                                         console.log(sellList[0].datosEnvio)
     res.status(200).json({sellList, ESTADO_DE_PEDIDO})
 }
 
