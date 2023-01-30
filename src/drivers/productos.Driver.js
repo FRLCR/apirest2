@@ -13,8 +13,12 @@ export const getProductLists = async (req, res) => {
     try {  
     const LISTADO_DE_PRODUCTOS = await Producto.find()
     const PRODUCTOS_BAJO_STOCK = bajoStock(LISTADO_DE_PRODUCTOS)
-
-    res.status(200).json([{LISTADO_DE_PRODUCTOS}, {PRODUCTOS_BAJO_STOCK} ])
+    
+    const listas = {
+        LISTADO_DE_PRODUCTOS: LISTADO_DE_PRODUCTOS,
+        PRODUCTOS_BAJO_STOCK: PRODUCTOS_BAJO_STOCK,
+    }    
+    res.status(200).json(listas)
     } catch(error){
         res.status(400).json(OPERACION_FAIL)
     }
