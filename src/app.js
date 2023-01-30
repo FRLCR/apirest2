@@ -7,7 +7,7 @@ import cors from 'cors'
 import productosRutas from './routes/producto.route.js'
 import authRutas from './routes/auth.route.js'
 import ventasRutas from './routes/venta.Route.js'
-import categoriasRuta from './routes/categoria.Route.js'
+import categoriasRuta from './routes/categoria.route.js'
 
 const app = express()
 createRoles()
