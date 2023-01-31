@@ -43,3 +43,20 @@ usuarioSchema.statics.validarPassword = async (password, hashPass) => {
 }
 
 export default model('Usuario', usuarioSchema);
+
+/* {
+    "email": "cahoraSii2@gmail.com",
+    "password": "asd123",
+    "datosEnvio": {
+        "nombre": "Carlos",
+        "apellido": "Sanchez",
+        "dni": 40404040,
+        "telefono": 1166666666,
+        "provincia": "Buenos Aires",
+        "ciudad": "CABA",
+        "cp": 1427,
+        "direccion": "Escalabrini Orti",
+        "altura": 1045
+   
+    }   
+    } */

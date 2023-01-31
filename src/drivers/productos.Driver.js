@@ -47,6 +47,7 @@ export const deleteProduct = async (req,res) => {
 }
 
 export const updateProduct = async (req,res) => {
+    // FALTA ENVIAR DESDE EL BODY LA CATEGORIA!!! NO EDITA CATEGORIA
     await Producto.findByIdAndUpdate(req.params.productId, req.body, {
         new: true
     })

@@ -26,7 +26,7 @@ const ventaSchema = new Schema({
 
      //Esencial manejo de Stock y Logistica
     estado: String, // Asociada a los enum de estadodeventa.js    
-    estaPago: Boolean,
+    estaPago: {type: Boolean, default: false}
     
 }, {
     timestamps: true,

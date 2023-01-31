@@ -17,12 +17,14 @@ const ESTADO_DE_PEDIDO = {
 }
 
 export const getSellList = async (req,res) => {
-    const sellList = await Venta.find({}).populate({path:'comprador', select: ['datosEnvio'] }) 
+    try{
+    const sellList = await Venta.find({}).populate({path:'comprador', select:'datosEnvio' }) 
                                          .populate({path: 'listadoProductos', select: 'nombre'})                                           
                                          .populate({path: 'vendedor', select: 'email'})
-
-    console.log(sellList)                                     
     res.status(200).json({sellList, ESTADO_DE_PEDIDO})
+    } catch(error){
+        res.status(404).json(OPERACION_FAIL)
+    }
 }
 
 export const newVenta = async (req,res) => {
@@ -87,26 +89,39 @@ async function chequearStock(listadoProductos, cantidadesCompradas){
     return hayStock;
 }
 
-// NUEVOP
 async function actualizarStock(listadoProductos, cantidadesCompradas, subTotales){
-    let producto = null;
-    for ( let i = 0; i < listadoProductos.length; i++) {
-        producto = await Producto.findById(listadoProductos[i])
-        producto.cantidad -= cantidadesCompradas[i]
-        producto.historicoVentas += cantidadesCompradas[i]
-        producto.historicoRecaudado += subTotales[i]
-        await producto.save()
-  }
+    try{ // NUEVO
+     let producto = null;
+     for ( let i = 0; i < listadoProductos.length; i++) {
+            // SI EL PRODUCTO DEL LISTADO EXISTE, ACTUALIZAMOS SU STOCK, SI NO, SEGUIMOS CON LO DEMAS
+            if (listadoProductos[i] != null){ // FIX VENTA IMPOSIBLE DE BORRAR
+            producto = await Producto.findById(listadoProductos[i])
+            producto.cantidad -= cantidadesCompradas[i]
+            producto.historicoVentas += cantidadesCompradas[i]
+           producto.historicoRecaudado += subTotales[i]
+           await producto.save()
+           } else {
+            console.log("El producto ya no existe")
+           }
+     }
+    }catch(error){
+        console.log("ACA CRASHEO! en actualizar stock")
+    }
 }
 export const deleteVenta = async (req,res) => {
-    try{
+    try{ // NUEVO
         const idVenta = req.params.productId
         let venta = await Venta.findById(idVenta)
         let restaSubtotales = []
         let restaCantidadesCompradas = []
-         for (let i = 0; i < venta.listadoProductos.length; i++){
+         for (let i = 0; i < venta.listadoProductos.length; i++){ // VENTA CON PRODUCTO BORRADO FIX
+            if (venta.listadoProductos[i] != null) { // SI EL PRODUCTO DE LA LISTA NO ESTA VACIO, ARMAMOS LOS SUBTOTALES 
             restaSubtotales.push(venta.subTotales[i] - (venta.subTotales[i]*2))
-            restaCantidadesCompradas.push(venta.cantidadesCompradas[i] - (venta.cantidadesCompradas[i]*2))     
+            restaCantidadesCompradas.push(venta.cantidadesCompradas[i] - (venta.cantidadesCompradas[i]*2))
+            }  else { // SI ESTA VACIO, PUSHEAMOS UN 0
+                restaSubtotales.push(0)
+                restaCantidadesCompradas.push(0)
+            }   
          }
 
     await actualizarStock(venta.listadoProductos, restaCantidadesCompradas, restaSubtotales)
@@ -114,6 +129,7 @@ export const deleteVenta = async (req,res) => {
     res.status(200).json(OPERACION_OK)
 
     } catch(error){
+        console.log("ACA CRASHEO! en deleteventa")
       res.status(404).json(OPERACION_FAIL)
     } 
 }
