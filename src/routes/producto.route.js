@@ -4,15 +4,15 @@ import {verifyToken, onlyMods} from '../middlewares/index.js'
 
 const router = Router()
 
-//  [verifyToken, onlyMods],
+//  [verifyToken, onlyMods, ],
 router.get("/", producto.getProductLists)
-router.post('/', producto.newProduct)
+router.post('/',  [verifyToken, onlyMods, producto.newProduct])
 
 
-router.delete('/:productId', producto.deleteProduct)
-router.put('/:productId', producto.updateProduct)
-router.get('/:productId', producto.getProduct)
-router.get('/stats/masvendidos', producto.productosMasVendidos)
-router.get('/stats/masrecaudados', producto.productosMasGanancia)
+router.delete('/:productId', [verifyToken, onlyMods,  producto.deleteProduct])
+router.put('/:productId',  [verifyToken, onlyMods, producto.updateProduct])
+router.get('/:productId',  [verifyToken, onlyMods, producto.getProduct])
+router.get('/stats/masvendidos', [verifyToken, onlyMods,  producto.productosMasVendidos])
+router.get('/stats/masrecaudados',  [verifyToken, onlyMods, producto.productosMasGanancia])
 
 export default router
