@@ -1,6 +1,7 @@
 import Producto from '../models/Producto.js'
 import Venta from '../models/Venta.js'
 import Rol from '../models/Rol.js'
+import Usuario from '../models/Usuario.js'
 import * as Auth from '../drivers/auth.Driver.js'
 
 const OPERACION_OK= "La operacion se realizó con éxito"
@@ -70,10 +71,14 @@ export const newVenta = async (req,res) => {
             listadoProductosString.push(producto.nombre)
         }  
 
-        if (hayStock){            
-            await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString, estado, cantidadesCompradasTotal})).save()
+        if (hayStock){  
+            const nuevaVenta = await (new Venta({totalRecaudado, comprador, listadoProductos, cantidadesCompradas, subTotales, vendedor, listadoProductosString, estado, cantidadesCompradasTotal})).save()          
+            if (nuevaVenta){
             await actualizarStock(listadoProductos, cantidadesCompradas, subTotales)  
+            console.log("Cargo una nueva venta al usuario wn")
+            await Usuario.findByIdAndUpdate(comprador, { $push: { 'historialVentas': nuevaVenta } })
             res.json(OPERACION_OK)
+            }
          } else {
             res.status(400).json(PRODUCTO_FUERA_DE_STOCK)
          }

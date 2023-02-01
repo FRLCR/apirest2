@@ -27,8 +27,14 @@ const usuarioSchema = new Schema({
     direccion:{type: String, required: true},
     altura:{type: Number, required: true},
     notasExtra:{type: String},
-   }
+   },
 
+   // HISTORIAL DE VENTAS:
+   historialVentas:[{
+    ref: "Venta",
+    type: Schema.Types.ObjectId
+   }],
+   
 }, {
     timestamps: true,
     versionKey: false
