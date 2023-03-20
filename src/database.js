@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 mongoose.set("strictQuery", true);
-mongoose.connect("mongodb+srv://francotds:franco123@dbf.rc79oqk.mongodb.net/?retryWrites=true&w=majority", {
+BORRADO POR SEGURIDAD
     useNewUrlParser : true,
     useUnifiedTopology: true, // SI
 })
